@@ -108,7 +108,7 @@ def view_product(search_query=None):
 
 def search_products():
     """Search products by their Product ID"""
-    view_product(input('Search by Product ID: '))
+    view_product(int(input('Search by Product ID: ')))
 
 
 def add_product():
