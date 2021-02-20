@@ -4,7 +4,7 @@ from collections import OrderedDict
 import datetime
 import csv
 import os
-
+import sys
 
 from peewee import *
 
@@ -75,9 +75,13 @@ def display_loop():
             menu[choice]()
 
 
-def view_product():
+def view_product(search_query=None):
     """View one of our fine products!"""
     store_products = Product.select().order_by(Product.product_id.desc())
+
+    if search_query:
+        store_products = store_products.where(Product.product_id.contains(search_query))
+
     for product in store_products:
         timestamp = product.date_updated.strftime('%A %B  %d, %Y %I:%M%p')
         clear_console()
@@ -100,6 +104,11 @@ def view_product():
             break
         elif next_action == 'd':
             delete_product(product)
+
+
+def search_products():
+    """Search products by their Product ID"""
+    view_product(input('Search by Product ID: '))
 
 
 def add_product():
@@ -146,6 +155,7 @@ def delete_product(product):
 menu = OrderedDict([
     ('v', view_product),
     ('a', add_product),
+    ('s', search_products),
     ('b', create_back_up),
 ])
 
