@@ -80,7 +80,7 @@ def view_product(search_query=None):
     store_products = Product.select().order_by(Product.product_id.desc())
 
     if search_query:
-        store_products = store_products.where(Product.product_id.contains(search_query))
+        store_products = store_products.where(Product.product_id == search_query)
 
     for product in store_products:
         timestamp = product.date_updated.strftime('%A %B  %d, %Y %I:%M%p')
@@ -98,17 +98,20 @@ def view_product(search_query=None):
         print('n) next product')
         print('q) return to main menu')
         print('d) delete product')
+        print('s) search for a product')
 
-        next_action = input('Action: [Nqd] ').lower().strip()
+        next_action = input('Action: [Nqds] ').lower().strip()
         if next_action == 'q':
             break
         elif next_action == 'd':
             delete_product(product)
+        elif next_action == 's':
+            search_products()
 
 
 def search_products():
     """Search products by their Product ID"""
-    view_product(int(input('Search by Product ID: ')))
+    view_product(input('Search by Product ID: '))
 
 
 def add_product():
