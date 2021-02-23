@@ -122,12 +122,27 @@ def add_product():
     new_product_price = int(float(new_product_price.replace('$', '')) * 100)
     new_product_quantity = input('How many products do you have? ')
 
-    if new_product_quantity:
-        if input('Save Entry? [yn] ').lower() != 'n':
-            Product.create(product_name=new_product_name,
-                           product_price=new_product_price,
-                           product_quantity=new_product_quantity)
+    if new_product_name and input('Save Product? [yn] ').lower() != 'n':
+        try:
+            Product.create(
+                product_name=new_product_name,
+                product_price=new_product_price,
+                product_quantity=new_product_quantity
+            )
             print("Saved successfully!")
+        # I saw how to write this code from another pythonista's Project 4 in their github:
+        # https://github.com/daniellerg/CSV_Inventory_App
+        except IntegrityError:
+            print("That item has already been added to the inventory.")
+            duplicate_record = Product.get(product_name=new_product_name)
+            duplicate_record.product_name = new_product_name
+            duplicate_record.product_quantity = new_product_quantity
+            duplicate_record.product_price = new_product_price
+            duplicate_record.save()
+        next_step()
+    else:
+        print("Product was not saved")
+        next_step()
 
 
 # A function to create a back_up csv
@@ -153,6 +168,11 @@ def delete_product(product):
         product.delete_instance()
         print("Product deleted!")
 
+
+def next_step():
+    next_action = input('Press ENTER/RETURN to return to main menu' ).lower().strip()
+    if next_action:
+        display_loop()
 
 # A menu to look at
 menu = OrderedDict([
