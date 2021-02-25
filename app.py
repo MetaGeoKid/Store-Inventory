@@ -95,23 +95,30 @@ def view_product(search_query=None):
               "Product Quantity:", product.product_quantity, '\n',
               timestamp)
         print('=' * len(timestamp))
-        print('n) next product')
-        print('q) return to main menu')
-        print('d) delete product')
         print('s) search for a product')
+        print('q) return to main menu')
 
-        next_action = input('Action: [Nqds] ').lower().strip()
+
+        next_action = input('Action: [sq] ').lower().strip()
         if next_action == 'q':
             break
-        elif next_action == 'd':
-            delete_product(product)
         elif next_action == 's':
             search_products()
+            break
 
 
 def search_products():
     """Search products by their Product ID"""
-    view_product(input('Search by Product ID: '))
+
+    while True:
+        search_query = input('Search by Product ID: ')
+        try:
+            search_query = int(search_query)
+        except ValueError:
+            print("Not found. Please try again")
+        else:
+            view_product(search_query)
+            break
 
 
 def add_product():
@@ -122,7 +129,7 @@ def add_product():
     new_product_price = int(float(new_product_price.replace('$', '')) * 100)
     new_product_quantity = input('How many products do you have? ')
 
-    if new_product_name and input('Save Product? [yn] ').lower() != 'n':
+    if new_product_name and input('Save Entry? [yn] ').lower() != 'n':
         try:
             Product.create(
                 product_name=new_product_name,
@@ -141,7 +148,7 @@ def add_product():
             duplicate_record.save()
         next_step()
     else:
-        print("Product was not saved")
+        print("Entry was not saved")
         next_step()
 
 
@@ -162,25 +169,19 @@ def create_back_up():
             })
 
 
-def delete_product(product):
-    """Delete an entry"""
-    if input("Are you sure? [yN] ").lower() == 'y':
-        product.delete_instance()
-        print("Product deleted!")
-
-
 def next_step():
     next_action = input('Press ENTER/RETURN to return to main menu' ).lower().strip()
     if next_action:
         display_loop()
 
+        
 # A menu to look at
 menu = OrderedDict([
     ('v', view_product),
     ('a', add_product),
-    ('s', search_products),
     ('b', create_back_up),
 ])
+
 
 if __name__ == '__main__':
     initialize()
