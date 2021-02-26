@@ -1,5 +1,5 @@
 # treehouse-project-4-Store-Inventory
-In this project, Models, SQLite, csv imports, and csv exports were utilized to:
+In this project, I created a store inventory with the following processes: Models, SQLite, csv imports, and csv exports. Each were utilized to:
 
 - look at an existing csv file
 - import it into a created database
