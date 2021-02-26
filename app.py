@@ -4,7 +4,6 @@ from collections import OrderedDict
 import datetime
 import csv
 import os
-import sys
 
 from peewee import *
 
@@ -95,39 +94,54 @@ def view_product(search_query=None):
               "Product Quantity:", product.product_quantity, '\n',
               timestamp)
         print('=' * len(timestamp))
-        print('s) search for a product')
-        print('q) return to main menu')
-
-
-        next_action = input('Action: [sq] ').lower().strip()
-        if next_action == 'q':
-            break
-        elif next_action == 's':
-            search_products()
-            break
+        search_products()
+        break
 
 
 def search_products():
     """Search products by their Product ID"""
-
-    while True:
-        search_query = input('Search by Product ID: ')
+    print("To quit, enter q.")
+    search_query = input('Search by Product ID: ')
+    # Fix the infinite loop here
+    while search_query != 'q':
         try:
             search_query = int(search_query)
         except ValueError:
             print("Not found. Please try again")
+            search_query = input('Search by Product ID: ')
         else:
-            view_product(search_query)
-            break
+            if search_query < 1 or search_query > Product.select().count():
+                print("Oops! You need to select a number within 1 and {}".format(Product.select().count()))
+                search_query = input('Search by Product ID: ')
+            else:
+                view_product(search_query)
+                break
 
 
 def add_product():
     """Add a product to the inventory"""
     print("Enter your product")
     new_product_name = input('What is the name of your product? ')
+
     new_product_price = input('How much is your product? Please use $ before your entry: ')
-    new_product_price = int(float(new_product_price.replace('$', '')) * 100)
+    while True:
+        try:
+            new_product_price = int(float(new_product_price.replace('$', '')) * 100)
+        except ValueError:
+            print("Be sure to add the $ and no spaces in the dollar amount (ex. $2.99)")
+            new_product_price = input('How much is your product? Please use $ before your entry: ')
+        else:
+            break
+
     new_product_quantity = input('How many products do you have? ')
+    while True:
+        try:
+            new_product_quantity = int(new_product_quantity)
+        except ValueError:
+            print("Please only put in an integer")
+            new_product_quantity = input('How many products do you have? ')
+        else:
+            break
 
     if new_product_name and input('Save Entry? [yn] ').lower() != 'n':
         try:
@@ -156,7 +170,7 @@ def add_product():
 def create_back_up():
     """Back up your current inventory"""
     products = Product.select().order_by(Product.product_id.desc())
-    with open('back_up.csv', 'a') as csvfile:
+    with open('back_up.csv', 'w') as csvfile:
         fieldnames = ['product_name', 'product_price', 'product_quantity', 'date_updated']
         back_up_writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         back_up_writer.writeheader()
@@ -167,21 +181,21 @@ def create_back_up():
                 'product_quantity': product.product_quantity,
                 'date_updated': product.date_updated.strftime('%m/%d/%Y')
             })
+    print("Your inventory has been saved to a back up file!")
+    next_step()
 
 
 def next_step():
-    next_action = input('Press ENTER/RETURN to return to main menu' ).lower().strip()
+    next_action = input('Press ENTER/RETURN to return to main menu').lower().strip()
     if next_action:
         display_loop()
 
-        
-# A menu to look at
+
 menu = OrderedDict([
     ('v', view_product),
     ('a', add_product),
     ('b', create_back_up),
 ])
-
 
 if __name__ == '__main__':
     initialize()
